@@ -16,14 +16,15 @@ from config import (AMMO, AUGS, CHANNEL_ID, COLOR, DESCRIPTION, EFFECTS,
 
 intents = discord.Intents.default()
 bot = discord.Bot(intents=intents)
-
+reaction_emotes = [f"{i}\N{COMBINING ENCLOSING KEYCAP}" for i in range(1, EFFECTS_COUNT+1)]
 
 class CrowdControl:
-    def __init__(self, host, port):
+    def __init__(self, host, port) -> None:
         self.socket = socket.create_server((host, port))
         self.socket.settimeout(0.1)
 
     def generate_message(self, code: int, param: str, viewer: str) -> str:
+        """Generate a message to send to the Crowd Control server."""
         msg = {
             "id": 1,
             "viewer": viewer,
@@ -34,36 +35,41 @@ class CrowdControl:
             msg["parameters"] = param
         return json.dumps(msg) + "\0"
 
-    def randomAug(self):
+    def randomAug(self) -> str:
+        """Return a random aug."""
         return random.choice(AUGS).lower()
 
-    def randomAmmo(self):
+    def randomAmmo(self) -> str:
+        """Return a random ammo."""
         return random.choice(AMMO).lower()
 
-    def pickEffect(self):
+    def pickEffect(self) -> tuple:
+        """Pick a random effect."""
         return random.choice(EFFECTS)
 
-    def sendEffect(self, effect, viewer):
+    def sendEffect(self, effect: tuple, viewer: str) -> None:
+        """Send an effect to the Crowd Control server."""
         msg = self.generate_message(effect[0], effect[1], viewer)
         print(f"Sending {msg}")
         with contextlib.suppress(Exception):
             self.conn.send(msg.encode('utf-8'))
 
-    def __start(self):
+    def __start(self) -> None:
+        """Start the Crowd Control server."""
         while True:
             with contextlib.suppress(socket.timeout):
                 self.conn, addr = self.socket.accept()
                 print(f"{addr[0]}:{addr[1]} connected")
 
-    def start(self):
+    def start(self) -> None:
+        """Start the Crowd Control server in a thread."""
         th = threading.Thread(target=self.__start,
                               daemon=True, name="CrowdControl")
         th.start()
 
-
 crowd_control = CrowdControl(HOST, PORT)
 
-
+## Discord Events
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user}")
@@ -72,9 +78,10 @@ async def on_ready():
     print("------------------")
     print("Starting Crowd Control")
     crowd_control.start()
+    print("CrowdControl started")
 
-
-async def generate_embed():
+async def generate_embed() -> tuple:
+    """Generate an embed with a random effects."""
     random_effects = [crowd_control.pickEffect() for _ in range(EFFECTS_COUNT)]
 
     embed = discord.Embed(title=TITLE, description=DESCRIPTION, color=COLOR)
@@ -94,22 +101,23 @@ async def generate_embed():
     return embed, random_effects
 
 
-async def clear_reactions(message, reaction):
+async def clear_reactions(message: discord.Message, reaction: discord.Reaction) -> None:
+    """Clear all reactions from a message."""
     async for user in reaction.users():
         if user != bot.user:
             await message.remove_reaction(reaction.emoji, user)
         await asyncio.sleep(0.1)
 
 
-async def add_reactions(message, i):
-    await message.add_reaction(f"{i}\N{COMBINING ENCLOSING KEYCAP}")
+async def add_reactions(message: discord.Message, emote: int) -> None:
+    """Add reactions to a message."""
+    await message.add_reaction(emote)
     await asyncio.sleep(0.1)
 
 
-async def send_message(ctx, embed, current_effects: list, random_effects: list, message, edit):
-
+async def send_message(ctx: discord.Message, embed: discord.Embed, current_effects: list, random_effects: list, message: discord.Message, edit: bool) -> tuple:
+    """Send a message to the channel."""
     results = {}
-
     reaction: discord.Reaction
     message: discord.Message
 
@@ -117,14 +125,12 @@ async def send_message(ctx, embed, current_effects: list, random_effects: list, 
         message = await message.edit(embed=embed)
     else:
         message = await ctx.send(embed=embed)
+        for emote in reaction_emotes:
+            asyncio.create_task(add_reactions(message, emote))
 
-    for i in range(1, EFFECTS_COUNT+1):
-        asyncio.create_task(add_reactions(message, i))
-
-    def check(reaction, user):
-        if user != bot.user and str(reaction.emoji) in [f"{i}\N{COMBINING ENCLOSING KEYCAP}" for i in range(1, EFFECTS_COUNT+1)]:
-            number = reaction.emoji.replace(
-                "\N{COMBINING ENCLOSING KEYCAP}", "")
+    def check(reaction, user) -> bool:
+        if user != bot.user and str(reaction.emoji) in reaction_emotes:
+            number = reaction.emoji.replace("\N{COMBINING ENCLOSING KEYCAP}", "")
             print(f"{user.name} voted for {number}")
             if results.get(number, ""):
                 results[number] = [
@@ -134,10 +140,11 @@ async def send_message(ctx, embed, current_effects: list, random_effects: list, 
         return False
 
     with contextlib.suppress(Exception):
-        reaction, user = await bot.wait_for("reaction_add", timeout=VOITING_TIME, check=check)
+        reaction, _ = await bot.wait_for("reaction_add", timeout=VOITING_TIME, check=check)
 
     # fetch the message again to get the latest reactions
     message = await ctx.fetch_message(message.id)
+    
     # fast remove users reactions
     for reaction in message.reactions:
         asyncio.create_task(clear_reactions(message, reaction))
@@ -160,8 +167,9 @@ async def send_message(ctx, embed, current_effects: list, random_effects: list, 
     return message, current_effects
 
 
-@bot.slash_command(name="start")
+@bot.slash_command(name="start", description="Start Deus Ex Randomizer Crowd Control")
 async def start(ctx: discord.Interaction):
+    """Start Deus Ex Randomizer Crowd Control"""
     if ctx.channel.id != CHANNEL_ID:
         return await ctx.respond("You can't use this command here!")
     await ctx.respond("Done", ephemeral=True)
