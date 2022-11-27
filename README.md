@@ -1,0 +1,24 @@
+# deus-ex-randomizer-discord-bot
+
+### In Game
+<img src="https://github.com/hampta/deus-ex-randomizer-discord-bot/raw/master/media/DeusEx_Lj4DyxN1h7.png"/></a>
+
+### In Discord
+<img src="https://github.com/hampta/deus-ex-randomizer-discord-bot/raw/master/media/Discord_RAFk3XUj32.png" height="250"/></a>
+
+
+## Usage: 
+- Download archive from [Releases](https://github.com/hampta/deus-ex-randomizer-discord-bot/releases/latest)
+- Unpack to any folder
+- Set `TOKEN`, `GUILD_ID`, `CHANNEL_ID` in `config.ini`
+- Open `DiscordCrowdControl.exe` and Deus Ex with [Randomizer Mod](https://github.com/Die4Ever/deus-ex-randomizer)
+- In game, create new game and in the **Crowd Control** value select **Enabled(Streaming)**
+- Start game
+- Start bot with `/start` command in in the channel with id `CHANNEL_ID`
+- Have fun!
+
+## Credits
+
+Original script: https://github.com/Die4Ever/deus-ex-randomizer
+
+Rework: [hampta](https://github.com/hampta)
