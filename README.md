@@ -20,5 +20,7 @@
 ## Credits
 
 Original script: https://github.com/Die4Ever/deus-ex-randomizer
+
 Rework: [hampta](https://github.com/hampta)
+
 Idea: [H3ADROOM](https://github.com/H3ADROOM)
