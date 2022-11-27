@@ -161,3 +161,4 @@ blob_storage
 build\
 dist\
 venv/
+config.ini

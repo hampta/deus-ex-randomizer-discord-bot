@@ -11,6 +11,99 @@ elif __file__:
     abs_pth = os.path.abspath(sys.argv[0])
     application_path = os.path.dirname(abs_pth)
 
+if not os.path.exists(os.path.join(application_path, 'config.ini')):
+    __config["DISCORD"] = {
+        "TOKEN": "YOUR_TOKEN",
+        "GUILD_ID": "YOUR_GUILD_ID",
+        "CHANNEL_ID": "YOUR_CHANNEL_ID",
+    }
+    __config["EMBED"] = {
+        "TITLE": "Deus Ex Discord Randomizer",
+        "DESCRIPTION": "React to this message to get a random effect!",
+        "INLINE": True,
+        "COLOR": "0x00FF00",
+        "THUMBNAIL": "https://avatars.githubusercontent.com/u/30947252",
+        "FOOTER": "This will end in {VOITING_TIME} seconds!",
+        "EFFECTS_HISTORY": 5,
+    }
+    __config["GAME"] = {
+        "EFFETS_COUNT": 6,
+        "VOITING_TIME": 30,
+        "AUGS": "augaqualung, augballistic, augcloak, augcombat, augdefense, augdrone, augemp, augenviro, aughealing, augheartlung, augmuscle, augpower, augradartrans, augshield, augspeed, augstealth, augtarget, augvision",
+        "AMMO": "Ammo10mm, Ammo20mm, Ammo762mm, Ammo3006, AmmoBattery, AmmoDart, AmmoDartFlare, AmmoDartPoison, AmmoNapalm, AmmoPepper, AmmoPlasma, AmmoRocket, AmmoRocketWP, AmmoSabot, AmmoShell",
+    }
+    __config["SERVER"] = {
+        "HOST": "127.0.0.1",
+        "PORT": 43384,
+    }
+    __config["EFFECTS"] = {
+        "poison": 2,
+        "glass_legs": 3,
+        "set_fire": 1,
+        "drop_lam": 2,
+        "drop_empgrenade": 2,
+        "drop_gasgrenade": 2,
+        "drop_nanovirusgrenade": 2,
+        "give_medkit": 3,
+        "full_heal": 2,
+        "drunk_mode": 1,
+        "drop_selected_item": 5,
+        "matrix": 1,
+        "emp_field": 1,
+        "give_bioelectriccell": 3,
+        "disable_jump": 2,
+        "gotta_go_fast": 4,
+        "gotta_go_slow": 2,
+        "ice_physics": 5,
+        "third_person": 2,
+        "dmg_double": 3,
+        "dmg_half": 3,
+        "lamthrower": 2,
+        "give_weaponhideagun": 3,
+        "ask_a_question": 4,
+        "nudge": 4,
+        "swap_player_position": 2,
+        "floaty_physics": 1,
+        "invert_mouse": 1,
+        "invert_movement": 1,
+    }
+    __config["give_health"] = {
+        "count": 3,
+        "min": 10,
+        "max": 50,
+    }
+    __config["give_energy"] = {
+        "count": 3,
+        "min": 10,
+        "max": 100,
+    }
+    __config["give_skillpoints"] = {
+        "count": 3,
+        "min": 1,
+        "max": 10,
+    }
+    __config["remove_skillpoints"] = {
+        "count": 3,
+        "min": 1,
+        "max": 10,
+    }
+    __config["add_credits"] = {
+        "count": 3,
+        "min": 1,
+        "max": 10,
+    }
+    __config["remove_credits"] = {
+        "count": 3,
+        "min": 1,
+        "max": 10,
+    }
+
+    with open(os.path.join(application_path, 'config.ini'), 'w') as configfile:
+        __config.write(configfile)
+
+    sys.exit(0)
+
+
 __config.read(os.path.join(application_path, "config.ini"))
 
 
@@ -24,9 +117,9 @@ INLINE = __config["EMBED"].getboolean("INLINE", fallback=False)
 COLOR = int(__config["EMBED"]["COLOR"], 16)
 THUMBNAIL = __config["EMBED"]["THUMBNAIL"]
 FOOTER = __config["EMBED"]["FOOTER"]
+EFFECTS_HISTORY = int(__config["EMBED"]["EFFECTS_HISTORY"])
 
 EFFECTS_COUNT = int(__config["GAME"]["EFFECTS_COUNT"])
-EFFECTS_HISTORY = int(__config["GAME"]["EFFECTS_HISTORY"])
 VOITING_TIME = float(__config["GAME"]["VOITING_TIME"])
 
 AUGS = [aug.replace(" ", "") for aug in __config["GAME"]["AUGS"] if aug]
